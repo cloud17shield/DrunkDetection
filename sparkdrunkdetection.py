@@ -34,9 +34,12 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor(predictor_path)
+with hdfs.open("/drunkdetection/shape_predictor_68_face_landmarks.dat") as p:
+    predictor = dlib.shape_predictor(p)
 fa = FaceAligner(predictor, desiredFaceWidth=300)
-img = cv2.imread(image_path)
+with hdfs.open("/drunkdetection/drunk3.jpg") as f:
+    img = cv2.imread(f)
+print(img)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 faces = detector(gray, 1)
 
