@@ -8,6 +8,7 @@ import dlib
 import cv2
 import os
 import pandas as pd
+import pydoop.hdfs as hdfs
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
@@ -19,7 +20,9 @@ predictor_path = "hdfs:///drunkdetection/shape_predictor_68_face_landmarks.dat"
 image_path = "hdfs:///drunkdetection/drunk3.jpg"
 model_path = "hdfs:///drunkdetection/rf48.pickle"
 
-df = pd.read_csv(csv_file_path,  index_col=0)
+with hdfs.open("/drunkdetection/train_data48.csv") as csv:
+    df = pd.read_csv(csv,  index_col=0)
+print(df.columns)
 df_y = df['label'] == 3
 df_X = df[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1,49)]]
 X_train, X_test, y_train, y_test = train_test_split(df_X, df_y, test_size=0.2, random_state=15)
@@ -61,6 +64,6 @@ for i in range(48):
 df_score = pd.DataFrame(data=dic)
 df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
 X_score = scaler.transform(df_score)
-with open(model_path, 'rb') as f:
+with hdfs.open("/drunkdetection/rf48.pickle", 'rb') as f:
     clf2 = pickle.load(f)
     print("drunk prediction:", clf2.predict(X_score))
