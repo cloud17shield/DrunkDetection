@@ -14,10 +14,10 @@ from sklearn.model_selection import train_test_split
 conf = SparkConf().setAppName("drunk detection").setMaster("yarn")
 sc = SparkContext(conf=conf)
 
-csv_file_path = "train_data48.csv"
-predictor_path = "shape_predictor_68_face_landmarks.dat"
-image_path = "drunk3.jpg"
-model_path = "rf48.pickle"
+csv_file_path = "hdfs:///drunkdetection/train_data48.csv"
+predictor_path = "hdfs:///drunkdetection/shape_predictor_68_face_landmarks.dat"
+image_path = "hdfs:///drunkdetection/drunk3.jpg"
+model_path = "hdfs:///drunkdetection/rf48.pickle"
 
 df = pd.read_csv(csv_file_path,  index_col=0)
 df_y = df['label'] == 3
