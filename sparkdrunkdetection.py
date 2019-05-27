@@ -1,4 +1,5 @@
 from pyspark import SparkContext, SparkConf
+from pyspark.sql import SQLContext
 import pickle
 from imutils.face_utils import FaceAligner
 from imutils.face_utils import rect_to_bb
@@ -14,6 +15,7 @@ from sklearn.model_selection import train_test_split
 
 conf = SparkConf().setAppName("drunk detection").setMaster("yarn")
 sc = SparkContext(conf=conf)
+sqlCtx = SQLContext(sc)
 
 csv_file_path = "hdfs:///drunkdetection/train_data48.csv"
 predictor_path = "hdfs:///drunkdetection/shape_predictor_68_face_landmarks.dat"
