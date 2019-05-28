@@ -22,9 +22,9 @@ sqlCtx = SQLContext(sc)
 print("drunk prediction test")
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48.csv"
-predictor_path = "file:///home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
-image_path = "file:///home/hduser/DrunkDetection/drunk3.jpg"
-model_path = "file:///home/hduser/DrunkDetection/rf48.pickle"
+predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
+image_path = "/home/hduser/DrunkDetection/drunk3.jpg"
+model_path = "/home/hduser/DrunkDetection/rf48.pickle"
 
 df = pd.read_csv(csv_file_path,  index_col=0)
 print(df.columns)
