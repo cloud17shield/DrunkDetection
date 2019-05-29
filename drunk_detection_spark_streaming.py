@@ -16,7 +16,7 @@ import dlib
 import cv2
 import os
 import pandas as pd
-import pydoop.hdfs as hdfs
+# import pydoop.hdfs as hdfs
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
