@@ -103,3 +103,5 @@ def handler(message):
 
 
 kafkaStream.foreachRDD(handler)
+ssc.start()
+ssc.awaitTermination()
