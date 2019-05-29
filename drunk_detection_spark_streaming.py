@@ -59,7 +59,7 @@ def handler(message):
         # producer.send(output_topic, b'message received')
         key = record[0]
         value = record[1]
-        if key.split('.')[1] == 'jpg' > 10:
+        if key.split('.')[1] == 'jpg':
             image_path = value
             images = sc.binaryFiles(image_path)
             image_to_array = lambda rawdata: np.asarray(Image.open(BytesIO(rawdata)))
