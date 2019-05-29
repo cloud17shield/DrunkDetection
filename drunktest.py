@@ -76,4 +76,4 @@ for image in r.collect():
     X_score = scaler.transform(df_score)
     with open(model_path, 'rb') as f:
         clf2 = pickle.load(f)
-        print("drunk prediction:", clf2.predict(X_score))
+        print("drunk prediction:", clf2.predict(X_score), 1 if True in clf2.predict(X_score) else 0)
