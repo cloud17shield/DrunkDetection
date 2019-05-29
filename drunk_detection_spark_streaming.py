@@ -32,7 +32,7 @@ output_topic = 'output'
 brokers = "student49-x1:2181,student49-x2:2181,student50-x1:2181,student50-x2:2181"
 
 kafkaStream = KafkaUtils.createStream(ssc, 'student49-x1:2181', 'test-consumer-group', {input_topic: 1})
-producer = KafkaProducer(bootstrap_servers='student49-x1:9092')
+producer = KafkaProducer(bootstrap_servers='student49:9092')
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
