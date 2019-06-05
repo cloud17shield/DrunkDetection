@@ -61,6 +61,7 @@ def handler(message):
         key = record[0]
         value = record[1]
         if key.split('.')[1] == 'jpg':
+            print("start processing")
             image_path = value
             images = sc.binaryFiles(image_path)
             image_to_array = lambda rawdata: np.asarray(Image.open(BytesIO(rawdata)))
