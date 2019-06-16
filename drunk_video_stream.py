@@ -78,7 +78,7 @@ def handler(message):
         image = Image.frombytes('RGB', (386, 385), value, 'raw')
         # img = cv2.imread("/tmp/" + key)
         img = np.array(image, dtype=np.uint8)
-        print(img, shape)
+        print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
         dic = {}
