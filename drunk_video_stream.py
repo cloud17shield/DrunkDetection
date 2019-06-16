@@ -61,6 +61,9 @@ with open(model_path, 'rb') as f:
 
 
 def handler(message):
+    timestamps = message.timestamp().collect()
+    for i in timestamps:
+        print(i)
     records = message.collect()
     for record in records:
         try:
@@ -75,9 +78,9 @@ def handler(message):
         value = record[1]
 
         print("start processing")
-        image = Image.frombytes('RGB', (386, 385), value, 'raw')
+        image = np.frombuffer(value, dtype=np.uint8)
         # img = cv2.imread("/tmp/" + key)
-        img = np.array(image, dtype=np.uint8)
+        img = image.reshape([385, 386, 3])
         print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
