@@ -23,9 +23,9 @@ from sklearn.preprocessing import StandardScaler
 from io import BytesIO
 from PIL import Image
 
-conf = SparkConf().setAppName("drunkdetection").setMaster("yarn")
+conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 3)
+ssc = StreamingContext(sc, 1)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -33,7 +33,7 @@ brokers = "G01-01:2181,G01-02:2181,G01-03:2181,G01-04:2181,G01-05:2181,G01-06:21
           "G01-09:2181,G01-10:2181,G01-11:2181,G01-12:2181,G01-13:2181,G01-14:2181,G01-15:2181,G01-16:2181 "
 
 kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 1})
-producer = KafkaProducer(bootstrap_servers='G01-01:9092')
+producer = KafkaProducer(bootstrap_servers='G01-01:9092',compression_type='gzip',batch_size=163840,buffer_memory=33554432,max_request_size=20485760)
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
@@ -62,48 +62,46 @@ def handler(message):
         # producer.send(output_topic, b'message received')
         key = record[0]
         value = record[1]
-        if key.split('.')[1] == 'jpg':
-            print("start processing")
-            image_path = value
-            images = sc.binaryFiles(image_path)
-            image_to_array = lambda rawdata: np.asarray(Image.open(BytesIO(rawdata)))
-            r = images.values().map(image_to_array)
-            for image in r.collect():
-                # img = cv2.imread("/tmp/" + key)
-                img = image[:, :, ::-1]
-                print(img)
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                faces = detector(gray, 1)
-                dic = {}
-                x_values = [[] for _ in range(48)]
-                y_values = [[] for _ in range(48)]
 
-                for face in faces:
-                    (x, y, w, h) = rect_to_bb(face)
-                    faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
-                    faceAligned = fa.align(img, gray, face)
+        print("start processing")
+        image = Image.frombytes('RGB', (385, 386), value, 'raw')
+        # img = cv2.imread("/tmp/" + key)
+        img = np.array(image, dtype=np.uint8)
+        print(img)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray, 1)
+        dic = {}
+        x_values = [[] for _ in range(48)]
+        y_values = [[] for _ in range(48)]
 
-                    dets = detector(faceAligned, 1)
-                    num_face = len(dets)
-                    print("num of face:", num_face)
-                    for k, d in enumerate(dets):
-                        shape = predictor(faceAligned, d)
-                        for j in range(48):
-                            x_values[j].append(shape.part(j).x)
-                            y_values[j].append(shape.part(j).y)
-                for i in range(48):
-                    dic['x' + str(i + 1)] = x_values[i]
-                    dic['y' + str(i + 1)] = y_values[i]
-                df_score = pd.DataFrame(data=dic)
-                df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
-                X_score = scaler.transform(df_score)
-                # with open(model_path, 'rb') as f:
-                #     clf2 = pickle.load(f)
-                predict_value = 1 if True in clf2.predict(X_score) else 0
-                print("drunk prediction:", predict_value)
-                producer.send(output_topic, key=str(key).encode('utf-8'), value=str(predict_value).encode('utf-8'))
-                producer.flush()
-                print("predict over")
+        for face in faces:
+            (x, y, w, h) = rect_to_bb(face)
+            # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
+            faceAligned = fa.align(img, gray, face)
+
+            dets = detector(faceAligned, 1)
+            num_face = len(dets)
+            print("num of face:", num_face)
+            for k, d in enumerate(dets):
+                shape = predictor(faceAligned, d)
+                for j in range(48):
+                    x_values[j].append(shape.part(j).x)
+                    y_values[j].append(shape.part(j).y)
+        for i in range(48):
+            dic['x' + str(i + 1)] = x_values[i]
+            dic['y' + str(i + 1)] = y_values[i]
+        df_score = pd.DataFrame(data=dic)
+        df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
+        X_score = scaler.transform(df_score)
+        # with open(model_path, 'rb') as f:
+        #     clf2 = pickle.load(f)
+        predict_value = 1 if True in clf2.predict(X_score) else 0
+        cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        print("drunk prediction:", predict_value)
+        producer.send(output_topic, value=img.tobytes())
+        producer.flush()
+        print("predict over")
 
 
 kafkaStream.foreachRDD(handler)
