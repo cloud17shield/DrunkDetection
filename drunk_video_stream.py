@@ -118,6 +118,6 @@ def handler(message):
         print("predict over")
 
 
-kafkaStream.foreachRDD(lambda rdd: rdd.foreach(handler))
+kafkaStream.foreachRDD(handler)
 ssc.start()
 ssc.awaitTermination()
