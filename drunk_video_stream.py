@@ -61,9 +61,9 @@ with open(model_path, 'rb') as f:
 
 
 def handler(message):
-    timestamps = message.timestamp().collect()
-    for i in timestamps:
-        print(i)
+    # timestamps = message.timestamp().collect()
+    # for i in timestamps:
+    #     print(i)
     records = message.collect()
     for record in records:
         try:
@@ -118,6 +118,6 @@ def handler(message):
         print("predict over")
 
 
-kafkaStream.foreachRDD(handler)
+kafkaStream.foreachRDD(lambda rdd: rdd.foreach(handler))
 ssc.start()
 ssc.awaitTermination()
