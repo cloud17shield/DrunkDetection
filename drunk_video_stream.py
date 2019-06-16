@@ -63,9 +63,13 @@ with open(model_path, 'rb') as f:
 def handler(message):
     records = message.collect()
     for record in records:
-        print('record', record, type(record))
-        print('-----------')
-        print('tuple', record[0], record[1], type(record[0]), type(record[1]))
+        try:
+            print('record', len(record), type(record))
+
+            print('-----------')
+            print('tuple', len(record[0]), len(record[1]), type(record[0]), type(record[1]))
+        except Exception:
+            print("error")
         # producer.send(output_topic, b'message received')
         key = record[0]
         value = record[1]
