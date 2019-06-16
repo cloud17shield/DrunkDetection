@@ -67,7 +67,7 @@ def handler(message):
             print('record', len(record), type(record))
 
             print('-----------')
-            print('tuple', len(record[0]), len(record[1]), type(record[0]), type(record[1]))
+            print('tuple', type(record[0]), type(record[1]))
         except Exception:
             print("error")
         # producer.send(output_topic, b'message received')
@@ -75,10 +75,10 @@ def handler(message):
         value = record[1]
 
         print("start processing")
-        image = Image.frombytes('RGB', (385, 386), value, 'raw')
+        image = Image.frombytes('RGB', (386, 385), value, 'raw')
         # img = cv2.imread("/tmp/" + key)
         img = np.array(image, dtype=np.uint8)
-        print(img)
+        print(img, shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
         dic = {}
