@@ -113,7 +113,7 @@ def handler(message):
         cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         print("drunk prediction:", predict_value)
-        producer.send(output_topic, value=img.tobytes())
+        producer.send(output_topic, value=img.tobytes(), key=key.encode('utf-8'))
         producer.flush()
         print("predict over")
 
