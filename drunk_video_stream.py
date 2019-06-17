@@ -77,6 +77,8 @@ def handler(message):
         key = record[0]
         value = record[1]
 
+        print("len", len(key), len(value))
+
         print("start processing")
         image = np.asarray(bytearray(value), dtype="uint8")
         # img = cv2.imread("/tmp/" + key)
