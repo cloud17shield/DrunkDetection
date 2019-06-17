@@ -78,9 +78,9 @@ def handler(message):
         value = record[1]
 
         print("start processing")
-        image = np.frombuffer(value, dtype=np.uint8)
+        image = np.asarray(bytearray(value), dtype="uint8")
         # img = cv2.imread("/tmp/" + key)
-        img = image.reshape([385, 386, 3])
+        img = cv2.imdecode(image, cv2.IMREAD_COLOR)
         print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
@@ -113,7 +113,7 @@ def handler(message):
         cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         print("drunk prediction:", predict_value)
-        producer.send(output_topic, value=img.tobytes(), key=key.encode('utf-8'))
+        producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
         producer.flush()
         print("predict over")
 
