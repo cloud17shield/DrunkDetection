@@ -25,7 +25,7 @@ from PIL import Image
 
 conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 1)
+ssc = StreamingContext(sc, 0.05)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -90,7 +90,7 @@ def handler(message):
         print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
-        if len(faces) > 1000:
+        if len(faces) >= 1:
             dic = {}
             x_values = [[] for _ in range(48)]
             y_values = [[] for _ in range(48)]
