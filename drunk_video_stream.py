@@ -39,14 +39,16 @@ def my_decoder(s):
     return s
 
 
-kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 1}, valueDecoder=my_decoder)
-producer = KafkaProducer(bootstrap_servers='G01-01:9092',compression_type='gzip',batch_size=163840,buffer_memory=33554432,max_request_size=20485760)
+kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 1},
+                                      valueDecoder=my_decoder)
+producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
+                         buffer_memory=33554432, max_request_size=20485760)
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
 model_path = "/home/hduser/DrunkDetection/rf48.pickle"
 
-df = pd.read_csv(csv_file_path,  index_col=0)
+df = pd.read_csv(csv_file_path, index_col=0)
 print(df.columns)
 df_y = df['label'] == 3
 df_X = df[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
@@ -88,38 +90,45 @@ def handler(message):
         print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
-        dic = {}
-        x_values = [[] for _ in range(48)]
-        y_values = [[] for _ in range(48)]
+        if len(faces) > 0:
+            dic = {}
+            x_values = [[] for _ in range(48)]
+            y_values = [[] for _ in range(48)]
 
-        for face in faces:
-            (x, y, w, h) = rect_to_bb(face)
-            # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
-            faceAligned = fa.align(img, gray, face)
+            for face in faces:
+                (x, y, w, h) = rect_to_bb(face)
+                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
+                faceAligned = fa.align(img, gray, face)
 
-            dets = detector(faceAligned, 1)
-            num_face = len(dets)
-            print("num of face:", num_face)
-            for k, d in enumerate(dets):
-                shape = predictor(faceAligned, d)
-                for j in range(48):
-                    x_values[j].append(shape.part(j).x)
-                    y_values[j].append(shape.part(j).y)
-        for i in range(48):
-            dic['x' + str(i + 1)] = x_values[i]
-            dic['y' + str(i + 1)] = y_values[i]
-        df_score = pd.DataFrame(data=dic)
-        df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
-        X_score = scaler.transform(df_score)
-        # with open(model_path, 'rb') as f:
-        #     clf2 = pickle.load(f)
-        predict_value = 1 if True in clf2.predict(X_score) else 0
-        cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-        print("drunk prediction:", predict_value)
+                dets = detector(faceAligned, 1)
+                num_face = len(dets)
+                print("num of face:", num_face)
+                for k, d in enumerate(dets):
+                    shape = predictor(faceAligned, d)
+                    for j in range(48):
+                        x_values[j].append(shape.part(j).x)
+                        y_values[j].append(shape.part(j).y)
+            for i in range(48):
+                dic['x' + str(i + 1)] = x_values[i]
+                dic['y' + str(i + 1)] = y_values[i]
+            df_score = pd.DataFrame(data=dic)
+            df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
+            X_score = scaler.transform(df_score)
+            # with open(model_path, 'rb') as f:
+            #     clf2 = pickle.load(f)
+            predict_value = 1 if True in clf2.predict(X_score) else 0
+            cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            print("drunk prediction:", predict_value)
+            print("predict over")
+
+        else:
+            cv2.putText(img, "No face detected", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
         producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
         producer.flush()
-        print("predict over")
+        print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
