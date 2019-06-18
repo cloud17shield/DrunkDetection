@@ -57,7 +57,7 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
-fa = FaceAligner(predictor, desiredFaceWidth=300)
+fa = FaceAligner(predictor, desiredFaceWidth=100)
 with open(model_path, 'rb') as f:
     clf2 = pickle.load(f)
 
@@ -90,7 +90,7 @@ def handler(message):
         print(img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
-        if len(faces) > 0:
+        if len(faces) > 1000:
             dic = {}
             x_values = [[] for _ in range(48)]
             y_values = [[] for _ in range(48)]
