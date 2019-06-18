@@ -82,7 +82,7 @@ def handler(message):
         print("start processing")
         # image = np.asarray(bytearray(value), dtype="uint8")
         image = np.frombuffer(value, dtype=np.uint8)
-        img = image.reshape([400, 300, 3])
+        img = image.reshape([300, 400, 3])
         # img = cv2.imread("/tmp/" + key)
         # img = cv2.imdecode(image, cv2.IMREAD_COLOR)
         print(img, img.shape)
