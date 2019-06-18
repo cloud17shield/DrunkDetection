@@ -91,11 +91,11 @@ def handler(message):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
         if len(faces) >= 1:
-            dic = {}
-            x_values = [[] for _ in range(48)]
-            y_values = [[] for _ in range(48)]
-
+            predict_value = 0
             for face in faces:
+                dic = {}
+                x_values = [[] for _ in range(48)]
+                y_values = [[] for _ in range(48)]
                 (x, y, w, h) = rect_to_bb(face)
                 # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
                 faceAligned = fa.align(img, gray, face)
@@ -103,20 +103,23 @@ def handler(message):
                 dets = detector(faceAligned, 1)
                 num_face = len(dets)
                 print("num of face:", num_face)
-                for k, d in enumerate(dets):
-                    shape = predictor(faceAligned, d)
-                    for j in range(48):
-                        x_values[j].append(shape.part(j).x)
-                        y_values[j].append(shape.part(j).y)
-            for i in range(48):
-                dic['x' + str(i + 1)] = x_values[i]
-                dic['y' + str(i + 1)] = y_values[i]
-            df_score = pd.DataFrame(data=dic)
-            df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
-            X_score = scaler.transform(df_score)
-            # with open(model_path, 'rb') as f:
-            #     clf2 = pickle.load(f)
-            predict_value = 1 if True in clf2.predict(X_score) else 0
+                if num_face == 1:
+
+                    for k, d in enumerate(dets):
+                        shape = predictor(faceAligned, d)
+                        for j in range(48):
+                            x_values[j].append(shape.part(j).x)
+                            y_values[j].append(shape.part(j).y)
+                    for i in range(48):
+                        dic['x' + str(i + 1)] = x_values[i]
+                        dic['y' + str(i + 1)] = y_values[i]
+                    df_score = pd.DataFrame(data=dic)
+                    df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
+                    X_score = scaler.transform(df_score)
+                    # with open(model_path, 'rb') as f:
+                    #     clf2 = pickle.load(f)
+                    if True in clf2.predict(X_score):
+                        predict_value = 1
             cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             print("drunk prediction:", predict_value)
