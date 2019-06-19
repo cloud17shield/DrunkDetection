@@ -83,10 +83,10 @@ def handler(message):
         print("start processing")
         # image = np.asarray(bytearray(value), dtype="uint8")
         image = np.frombuffer(value, dtype=np.uint8)
-        img = image.reshape(300, 400, 3)[:, :, ::-1]
+        img = image.reshape(300, 400, 3)
         # img = cv2.imread("/tmp/" + key)
         # img = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        print(img, img.shape)
+        print('img shape', img, img.shape)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 1)
         if len(faces) >= 1:
