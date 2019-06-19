@@ -25,7 +25,7 @@ from PIL import Image
 
 conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.05)
+ssc = StreamingContext(sc, 0.01)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -39,7 +39,7 @@ def my_decoder(s):
     return s
 
 
-kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 1},
+kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 10},
                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
@@ -70,7 +70,6 @@ def handler(message):
     for record in records:
         try:
             print('record', len(record), type(record))
-
             print('-----------')
             print('tuple', type(record[0]), type(record[1]))
         except Exception:
@@ -84,7 +83,7 @@ def handler(message):
         print("start processing")
         # image = np.asarray(bytearray(value), dtype="uint8")
         image = np.frombuffer(value, dtype=np.uint8)
-        img = image.reshape([300, 400, 3])[:, :, ::-1]
+        img = image.reshape(300, 400, 3)[:, :, ::-1]
         # img = cv2.imread("/tmp/" + key)
         # img = cv2.imdecode(image, cv2.IMREAD_COLOR)
         print(img, img.shape)
@@ -92,19 +91,19 @@ def handler(message):
         faces = detector(gray, 1)
         if len(faces) >= 1:
             predict_value = 0
+
             for face in faces:
                 dic = {}
                 x_values = [[] for _ in range(48)]
                 y_values = [[] for _ in range(48)]
                 (x, y, w, h) = rect_to_bb(face)
-                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=300)
+                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
                 faceAligned = fa.align(img, gray, face)
 
                 dets = detector(faceAligned, 1)
                 num_face = len(dets)
-                print("num of face:", num_face)
+                print(num_face)
                 if num_face == 1:
-
                     for k, d in enumerate(dets):
                         shape = predictor(faceAligned, d)
                         for j in range(48):
@@ -113,13 +112,13 @@ def handler(message):
                     for i in range(48):
                         dic['x' + str(i + 1)] = x_values[i]
                         dic['y' + str(i + 1)] = y_values[i]
+
                     df_score = pd.DataFrame(data=dic)
                     df_score = df_score[['x' + str(i) for i in range(1, 49)] + ['y' + str(j) for j in range(1, 49)]]
                     X_score = scaler.transform(df_score)
-                    # with open(model_path, 'rb') as f:
-                    #     clf2 = pickle.load(f)
                     if True in clf2.predict(X_score):
                         predict_value = 1
+                        break
             cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             print("drunk prediction:", predict_value)
