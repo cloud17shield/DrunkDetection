@@ -38,9 +38,11 @@ def my_decoder(s):
         return None
     return s
 
-
-kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 10},
-                                      valueDecoder=my_decoder)
+numStreams = 5
+kafkaStreams = [KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 10}, valueDecoder=my_decoder) for _ in range (numStreams)]
+unifiedStream = ssc.union(*kafkaStreams)
+# kafkaStream = KafkaUtils.createStream(ssc, 'G01-01:2181', 'test-consumer-group', {input_topic: 10},
+#                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
 
@@ -133,6 +135,6 @@ def handler(message):
         print('send over!')
 
 
-kafkaStream.foreachRDD(handler)
+unifiedStream.foreachRDD(handler)
 ssc.start()
 ssc.awaitTermination()
