@@ -24,7 +24,7 @@ df = spark \
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .selectExpr("key", "value") \
+    .selectExpr("value") \
     .writeStream \
     .format("console") \
     .trigger(continuous='5 second') \
