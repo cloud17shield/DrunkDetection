@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import split
 from pyspark.sql.functions import decode
+from pyspark.streaming import StreamingContext
 
 input_topic = 'input'
 output_topic = 'output'
@@ -13,6 +14,8 @@ spark = SparkSession \
     .builder \
     .appName("drunk streaming structure") \
     .getOrCreate()
+
+ssc = StreamingContext(spark.sparkContext, 1)
 
 # Subscribe to 1 topic
 df = spark \
@@ -28,4 +31,5 @@ ds = df \
     .writeStream \
     .format("console") \
     .start()
+
 ds.awaitTermination()
