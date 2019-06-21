@@ -25,7 +25,7 @@ from PIL import Image
 
 conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.01)
+ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
