@@ -2,7 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import split
 from pyspark.sql.functions import decode
-from pyspark.streaming import StreamingContext
 
 input_topic = 'input'
 output_topic = 'output'
@@ -15,21 +14,20 @@ spark = SparkSession \
     .appName("drunk streaming structure") \
     .getOrCreate()
 
-ssc = StreamingContext(spark.sparkContext, 1)
-
 # Subscribe to 1 topic
 df = spark \
     .readStream \
-    .format("kafka") \
-    .option("kafka.bootstrap.servers", "G01-01:9092") \
-    .option("subscribe", input_topic) \
-    .load() \
-    .selectExpr("key", "value")
+    .format("socket") \
+    .option("host", "10.244.1.12") \
+    .option("port", 23333) \
+    .load()
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
+    .selectExpr("key", "value") \
     .writeStream \
     .format("console") \
+    .trigger(continuous='5 second') \
     .start()
 
 ds.awaitTermination()
