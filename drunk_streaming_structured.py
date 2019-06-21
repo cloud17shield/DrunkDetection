@@ -16,11 +16,16 @@ spark = SparkSession \
 
 # Subscribe to 1 topic
 df = spark \
-  .readStream \
-  .format("kafka") \
-  .option("kafka.bootstrap.servers", "G01-01:9092") \
-  .option("subscribe", input_topic) \
-  .load()
-df2 = df.selectExpr(decode("key", "utf-8"), "value")
-df2.printSchema()
-df2.show(10)
+    .readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "G01-01:9092") \
+    .option("subscribe", input_topic) \
+    .load() \
+    .selectExpr("key", "value")
+
+# Write key-value data from a DataFrame to a specific Kafka topic specified in an option
+ds = df \
+    .writeStream \
+    .format("console") \
+    .start()
+ds.awaitTermination()
