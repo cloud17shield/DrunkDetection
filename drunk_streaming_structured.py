@@ -31,7 +31,7 @@ df = spark \
 # raw.show()
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .select("timestamp", "key", "value", length("value").alias("len")) \
+    .select("timestamp", decode("key", 'UTF-8'), "value", length("value").alias("len")) \
     .writeStream \
     .format("console") \
     .trigger(continuous='1 second') \
