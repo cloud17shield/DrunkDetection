@@ -20,6 +20,15 @@ df = spark \
     .option("subscribe", 'input') \
     .load()
 
+rawQuery = df \
+    .writeStream \
+    .queryName("qraw") \
+    .format("memory") \
+    .trigger(continuous='1 second') \
+    .start()
+
+raw = spark.sql("select * from qraw")
+raw.show()
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
     .orderBy(asc("key"), "value", length("value").alias("len")) \
