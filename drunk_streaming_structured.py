@@ -17,17 +17,17 @@ spark = SparkSession \
 # Subscribe to 1 topic
 df = spark \
     .readStream \
-    .format("socket") \
-    .option("host", "10.244.1.12") \
-    .option("port", 23333) \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "G01-01:9092") \
+    .option("subscribe", 'input') \
     .load()
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .selectExpr("value") \
+    .selectExpr("key", "value") \
     .writeStream \
     .format("console") \
-    .trigger(continuous='5 second') \
+    .trigger(continuous='1 second') \
     .start()
 
 ds.awaitTermination()
