@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import length, asc
+from pyspark.sql.functions import *
 
 input_topic = 'input'
 output_topic = 'output'
@@ -22,7 +22,7 @@ df = spark \
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .select(asc("key"), "value", length("value").alias("len")) \
+    .orderBy(asc("key"), "value", length("value").alias("len")) \
     .writeStream \
     .format("console") \
     .trigger(continuous='1 second') \
