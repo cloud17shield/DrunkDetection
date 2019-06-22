@@ -20,6 +20,7 @@ df = spark \
     .option("subscribe", 'input') \
     .load()
 
+
 # rawQuery = df \
 #     .writeStream \
 #     .queryName("qraw") \
@@ -29,10 +30,17 @@ df = spark \
 #
 # raw = spark.sql("select * from qraw")
 # raw.show()
+
+def handler(row):
+    print(row)
+    pass
+
+
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
     .select("timestamp", decode("key", 'UTF-8'), "value", length("value").alias("len")) \
     .writeStream \
+    .foreach(handler)\
     .format("console") \
     .trigger(continuous='1 second') \
     .start()
