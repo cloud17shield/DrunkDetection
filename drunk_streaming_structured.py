@@ -1,8 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import explode
-from pyspark.sql.functions import split
-from pyspark.sql.functions import decode
-from pyspark.sql.functions import length, sort_array
+from pyspark.sql.functions import length, asc
 
 input_topic = 'input'
 output_topic = 'output'
@@ -25,7 +22,7 @@ df = spark \
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .select(sort_array("key", asc=True), "value", length("value").alias("len")) \
+    .select(asc("key"), "value", length("value").alias("len")) \
     .writeStream \
     .format("console") \
     .trigger(continuous='1 second') \
