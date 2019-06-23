@@ -120,13 +120,29 @@ df = spark \
     .option("subscribe", 'input') \
     .option("startingOffsets", "latest") \
     .load() \
-    .select(decode("key", 'UTF-8'), "value")
+    .select(decode("key", 'UTF-8').alias("key"), "value")
 
 # process
-df1 = df
+df.printSchema()
+df_sorted = df.sort(col("key").asc())
+df_sorted.show(10)
+for row in df_sorted.rdd.collect():
+    try:
+        print('record', len(row), type(row))
+        print('-----------')
+        print('tuple', type(row[0]), type(row[1]))
+    except Exception:
+        print("error")
+    # producer.send(output_topic, b'message received')
+    key = row[0]
+    value = row[1]
+
+    print("len", len(key), len(value))
+
+    print("start processing")
 
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
-ds = df \
+ds = df_sorted \
     .writeStream \
     .foreach(handler) \
     .format("console") \
