@@ -144,7 +144,6 @@ for row in df_sorted.rdd.collect():
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df_sorted \
     .writeStream \
-    .foreach(handler) \
     .format("console") \
     .trigger(continuous='1 second') \
     .outputMode('update') \
