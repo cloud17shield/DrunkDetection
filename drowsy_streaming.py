@@ -14,7 +14,7 @@ import cv2
 
 conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.1)
+ssc = StreamingContext(sc, 0.05)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
