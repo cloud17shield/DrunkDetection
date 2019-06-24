@@ -14,7 +14,7 @@ import cv2
 
 conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.1)
+ssc = StreamingContext(sc, 0.05)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -51,6 +51,7 @@ flag = 0
 
 
 def handler(message):
+    global flag
     records = message.collect()
     for record in records:
         try:
@@ -86,8 +87,8 @@ def handler(message):
             rightEyeHull = cv2.convexHull(rightEye)
             cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
             cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+
             if ear < thresh:
-                global flag
                 flag += 1
                 print(flag)
                 if flag >= frame_check:
@@ -97,7 +98,6 @@ def handler(message):
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 # print ("Drowsy")
             else:
-                global flag
                 flag = 0
         producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
         producer.flush()
