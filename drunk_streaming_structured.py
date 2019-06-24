@@ -48,10 +48,10 @@ logger.warn("logger start")
 
 
 # process
-@udf
-def handler(s):
-    s = s + "123123"
-    return s
+def handler(row):
+    logger.warn("inside handler")
+    row.key += "2"
+    return row
 
 
 # Subscribe to 1 topic, read from kafka, length("value").alias("len"), "timestamp"
@@ -64,20 +64,13 @@ df = spark \
     .load() \
     .select(decode("key", 'UTF-8').alias("key"), decode("value", "UTF-8").alias("value"))
 
-rawQuery = df \
-    .writeStream \
-    .queryName("qraw") \
-    .format("memory") \
-    .trigger(processingTime='2 seconds') \
-    .start()
-rawQuery.show()
-rawQuery.printSchema()
-
 # Write key-value data from a DataFrame to a specific Kafka topic specified in an option
 ds = df \
-    .select(handler("key"), "value") \
     .writeStream \
-    .format("console") \
+    .foreach(handler) \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "G01-01:9092") \
+    .option("subscribe", 'output') \
     .trigger(continuous='1 second') \
     .start()
 
