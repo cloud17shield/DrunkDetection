@@ -1,29 +1,16 @@
-import sys
 from kafka import KafkaProducer
-from kafka.errors import KafkaError, KafkaTimeoutError
 
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext
+
 from imutils import face_utils
 from scipy.spatial import distance
-import pickle
-from imutils.face_utils import FaceAligner
-from imutils.face_utils import rect_to_bb
 import numpy as np
 import imutils
 import dlib
 import cv2
-import os
-import pandas as pd
-# import pydoop.hdfs as hdfs
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from io import BytesIO
-from PIL import Image
 
 conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
