@@ -3,20 +3,22 @@ from keras import models
 from keras import layers
 from keras.preprocessing.image import ImageDataGenerator
 from keras import optimizers
-
+import os  # a conflict in my mac system
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 # img size 224*224
 # https://keras.io/applications/#mobilenetv2
-conv_base = MobileNetV2(input_shape=None, alpha=1.0, depth_multiplier=1, include_top=True,
-                        weights='imagenet', input_tensor=None, pooling=None, classes=1000)
-conv_base.summary()
+mobile_base = MobileNetV2(input_shape=None, alpha=1.0, depth_multiplier=1, include_top=True,
+                          weights='imagenet', input_tensor=None, pooling=None, classes=1000)
+mobile_base.summary()
 
 model = models.Sequential()
-model.add(conv_base)
+model.add(mobile_base)
 model.add(layers.Flatten())
 model.add(layers.Dense(256, activation='relu'))
+model.add(layers.Dropout(0.5))
 model.add(layers.Dense(10, activation='softmax'))
 # this "freezes"
-conv_base.trainable = False
+mobile_base.trainable = False
 model.summary()
 
 # # Fine Tuning
@@ -33,10 +35,10 @@ model.summary()
 #
 # model.summary()
 
-train_dir = "./cat_dog_car_bike/train"
-test_dir = "./cat_dog_car_bike/test"
-validation_dir = "./cat_dog_car_bike/val"
-train_datagen = ImageDataGenerator(
+train_dir = "~/Downloads/state-farm-distracted-driver-detection/imgs/train"
+test_dir = "~/Downloads/state-farm-distracted-driver-detection/imgs/test"
+
+train_data_generator = ImageDataGenerator(
     rescale=1. / 255,
     rotation_range=40,
     width_shift_range=0.2,
@@ -45,12 +47,12 @@ train_datagen = ImageDataGenerator(
     zoom_range=0.2,
     horizontal_flip=True,
     fill_mode='nearest')
-test_datagen = ImageDataGenerator(rescale=1. / 255)
-train_generator = train_datagen.flow_from_directory(
+test_data_generator = ImageDataGenerator(rescale=1. / 255)
+train_generator = train_data_generator.flow_from_directory(
     train_dir, target_size=(32, 32), batch_size=20, class_mode='categorical')
 
-validation_generator = test_datagen.flow_from_directory(
-    validation_dir,
+validation_generator = test_data_generator.flow_from_directory(
+    test_dir,
     target_size=(32, 32),
     batch_size=20,
     class_mode='categorical')
