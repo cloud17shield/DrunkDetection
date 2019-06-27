@@ -61,13 +61,30 @@ model.compile(
 
 model.load_weights('Distracted_vgg16.h5', by_name=True)
 img_path = "/Users/ranxin/Downloads/state-farm-distracted-driver-detection/imgs/test/img_1.jpg"
-import cv2
+# import cv2
+#
+# new_input = cv2.imread(img_path)
+# print(new_input.shape)
+# new_input = cv2.resize(new_input, (224, 224), interpolation=cv2.INTER_CUBIC)
+# print(new_input.shape)
+# # cv2.imwrite('new_input.jpg', new_input)
+# new_input = new_input.reshape((-1, 224, 224, 3))
+# ynew = model.predict_classes(new_input)
+# print(type(ynew), ynew)
 
-new_input = cv2.imread(img_path)
-print(new_input.shape)
-new_input = cv2.resize(new_input, (224, 224), interpolation=cv2.INTER_CUBIC)
-print(new_input.shape)
-# cv2.imwrite('new_input.jpg', new_input)
-new_input = new_input.reshape((-1, 224, 224, 3))
-ynew = model.predict_classes(new_input)
-print(type(ynew), ynew)
+
+from keras.preprocessing.image import img_to_array, load_img
+# from keras.applications.inception_v3 import preprocess_input
+from keras.applications.vgg16 import preprocess_input
+import numpy as np
+
+image = img_to_array(load_img(img_path, target_size=(224, 224)))
+print(image.shape)
+image = np.expand_dims(image, axis=0)
+print(image.shape)
+print(image, image.shape)
+ret_value = preprocess_input(image)
+print(ret_value, ret_value.shape)
+
+ynew = model.predict_classes(ret_value)
+print(ynew)

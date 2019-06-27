@@ -31,27 +31,29 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
-    records = message.collect()
-    for record in records:
-        try:
-            print('record', len(record), type(record))
-            print('-----------')
-            print('tuple', type(record[0]), type(record[1]))
-        except Exception:
-            print("error")
-        # producer.send(output_topic, b'message received')
-        key = record[0]
-        value = record[1]
-        print("len", len(key), len(value))
-
-        print("start processing")
-        image = np.asarray(bytearray(value), dtype="uint8")
-        # image = np.frombuffer(value, dtype=np.uint8)
-        # img = image.reshape(300, 400, 3)
-        # img = cv2.imread("/tmp/" + key)
-        img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-        frame = imutils.resize(img, width=450)
-        print('img shape', frame.shape)
+    records = message.toDF()
+    records.printSchema()
+    records.show(10)
+    # for record in records:
+    #     try:
+    #         print('record', len(record), type(record))
+    #         print('-----------')
+    #         print('tuple', type(record[0]), type(record[1]))
+    #     except Exception:
+    #         print("error")
+    #     # producer.send(output_topic, b'message received')
+    #     key = record[0]
+    #     value = record[1]
+    #     print("len", len(key), len(value))
+    #
+    #     print("start processing")
+    #     image = np.asarray(bytearray(value), dtype="uint8")
+    #     # image = np.frombuffer(value, dtype=np.uint8)
+    #     # img = image.reshape(300, 400, 3)
+    #     # img = cv2.imread("/tmp/" + key)
+    #     img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+    #     frame = imutils.resize(img, width=450)
+    #     print('img shape', frame.shape)
 
 
 kafkaStream.foreachRDD(handler)
