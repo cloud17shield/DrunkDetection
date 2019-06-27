@@ -31,10 +31,10 @@ kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {inpu
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
 
-transformer = dl.KerasImageFileTransformer(inputCol="value", outputCol="predictions",
-                                           modelFile=model_path,  # local file path for model
-                                           imageLoader=loadAndPreprocessKeras,
-                                           outputMode="vector")
+# transformer = dl.KerasImageFileTransformer(inputCol="value", outputCol="predictions",
+#                                            modelFile=model_path,  # local file path for model
+#                                            imageLoader=loadAndPreprocessKeras,
+#                                            outputMode="vector")
 
 
 def handler(message):
