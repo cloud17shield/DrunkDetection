@@ -40,6 +40,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 def handler(message):
     try:
         records = message.toDF()
+        print("Schema()")
         records.printSchema()
         records.show(10)
     except Exception:
