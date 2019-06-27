@@ -31,9 +31,12 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
-    records = message.toDF()
-    records.printSchema()
-    records.show(10)
+    try:
+        records = message.toDF()
+        records.printSchema()
+        records.show(10)
+    except Exception:
+        print("Empty")
     # for record in records:
     #     try:
     #         print('record', len(record), type(record))
