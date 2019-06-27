@@ -43,8 +43,8 @@ def handler(message):
         print("Schema()")
         records.printSchema()
         records.show(10)
-    except Exception:
-        print("Empty")
+    except Exception as e:
+        print("ErroType:", e)
     # for record in records:
     #     try:
     #         print('record', len(record), type(record))
