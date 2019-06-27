@@ -19,6 +19,8 @@ output_topic = 'output'
 brokers = "G01-01:2181,G01-02:2181,G01-03:2181,G01-04:2181,G01-05:2181,G01-06:2181,G01-07:2181,G01-08:2181," \
           "G01-09:2181,G01-10:2181,G01-11:2181,G01-12:2181,G01-13:2181,G01-14:2181,G01-15:2181,G01-16:2181"
 
+model_path = 'hdfs:///models/Distracted_vgg16_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
+
 
 def my_decoder(s):
     return s
@@ -28,6 +30,11 @@ kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {inpu
                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
+
+transformer = dl.KerasImageFileTransformer(inputCol="value", outputCol="predictions",
+                                           modelFile=model_path,  # local file path for model
+                                           imageLoader=loadAndPreprocessKeras,
+                                           outputMode="vector")
 
 
 def handler(message):
