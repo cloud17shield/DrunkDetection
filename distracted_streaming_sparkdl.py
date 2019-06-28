@@ -23,7 +23,7 @@ model_path = 'hdfs:///models/Distracted_vgg16_full.h5'  # /home/hduser/Distracte
 
 
 def my_decoder(s):
-    return s
+    return bytearray(s)
 
 
 kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 10},
