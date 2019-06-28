@@ -42,14 +42,14 @@ def handler(message):
         records = message.toDF()
         print("Schema()")
         records.printSchema()
-        records.show(10)
+        records.show()
     except Exception as e:
-        print("ErroType:", e)
+        print("ErrorType:", e)
     # for record in records:
     #     try:
     #         print('record', len(record), type(record))
     #         print('-----------')
-    #         print('tuple', type(record[0]), type(record[1]))
+    #         print('tuple', type(recorbytearray(value)d[0]), type(record[1]))
     #     except Exception:
     #         print("error")
     #     # producer.send(output_topic, b'message received')
@@ -58,7 +58,7 @@ def handler(message):
     #     print("len", len(key), len(value))
     #
     #     print("start processing")
-    #     image = np.asarray(bytearray(value), dtype="uint8")
+    #     image = np.asarray(, dtype="uint8")
     #     # image = np.frombuffer(value, dtype=np.uint8)
     #     # img = image.reshape(300, 400, 3)
     #     # img = cv2.imread("/tmp/" + key)
