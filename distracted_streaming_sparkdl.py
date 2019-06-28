@@ -29,6 +29,7 @@ def my_decoder(s):
 
 def loadAndPreprocessKeras(uri):
     image = np.asarray(uri, dtype="uint8")
+    image = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
     print("image type:", image.shape)
     image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
     print("image type:", image.shape)

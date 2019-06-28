@@ -49,6 +49,7 @@ def handler(message):
 
         print("start processing")
         image = np.asarray(bytearray(value), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
         image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
         image = image.reshape((-1, 224, 224, 3))
         image = preprocess_input(image)
