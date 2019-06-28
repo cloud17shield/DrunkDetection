@@ -9,6 +9,7 @@ import sparkdl as dl
 import numpy as np
 import cv2
 import imutils
+from keras.applications.vgg16 import preprocess_input
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
@@ -26,23 +27,36 @@ def my_decoder(s):
     return bytearray(s)
 
 
+def loadAndPreprocessKeras(uri):
+    image = np.asarray(uri, dtype="uint8")
+    print("image type:", image.shape)
+    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
+    print("image type:", image.shape)
+    image = image.reshape((-1, 224, 224, 3))
+    print("image type:", image.shape)
+    return preprocess_input(image)
+
+
 kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 10},
                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
 
-# transformer = dl.KerasImageFileTransformer(inputCol="value", outputCol="predictions",
-#                                            modelFile=model_path,  # local file path for model
-#                                            imageLoader=loadAndPreprocessKeras,
-#                                            outputMode="vector")
+transformer = dl.KerasImageFileTransformer(inputCol="_2", outputCol="predictions",
+                                           modelFile=model_path,  # local file path for model
+                                           imageLoader=loadAndPreprocessKeras,
+                                           outputMode="vector")
 
 
 def handler(message):
     try:
         records = message.toDF()
         print("Schema()")
-        records.printSchema()
-        records.show()
+        # records.printSchema()
+        # records.show()
+        keras_pred_df = transformer.transform(records)
+        keras_pred_df.printSchema()
+        keras_pred_df.show()
     except Exception as e:
         print("ErrorType:", e)
     # for record in records:
