@@ -34,6 +34,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
+    global model
     records = message.collect()
     for record in records:
         try:
