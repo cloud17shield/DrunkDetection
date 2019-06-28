@@ -38,7 +38,6 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
-
     records = message.collect()
     for record in records:
         try:
@@ -54,9 +53,9 @@ def handler(message):
 
         print("start processing")
         image = np.asarray(bytearray(value), dtype="uint8")
-        image = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-        print("img shape:", image.shape)
-        image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
+        image_in = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+        print("img shape:", image_in.shape)
+        image = cv2.resize(image_in, (224, 224), interpolation=cv2.INTER_CUBIC)
         image = image.reshape((-1, 224, 224, 3))
         print("img shape:", image.shape)
         image = preprocess_input(image)
@@ -65,7 +64,15 @@ def handler(message):
         global model
         with graph.as_default():
             ynew = model.predict_classes(image)
-            print(type(ynew), ynew)
+            print("prediction", type(ynew), ynew)
+            result_dic = {0: "normal driving", 1: "texting - right", 2: "talking on the phone - right",
+                          3: "texting - left", 4: "talking on the phone - left", 5: "operating on the radio",
+                          6: "drinking", 7: "reaching behind", 8: "hair and makeup", 9: "talking to passenger"}
+            cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            producer.send(output_topic, value=cv2.imencode('.jpg', image_in)[1].tobytes(), key=key.encode('utf-8'))
+            producer.flush()
+            print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
