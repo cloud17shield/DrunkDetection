@@ -10,6 +10,7 @@ import numpy as np
 import cv2
 import imutils
 from keras.applications.vgg16 import preprocess_input
+import tensorflow as tf
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
@@ -21,6 +22,10 @@ brokers = "G01-01:2181,G01-02:2181,G01-03:2181,G01-04:2181,G01-05:2181,G01-06:21
           "G01-09:2181,G01-10:2181,G01-11:2181,G01-12:2181,G01-13:2181,G01-14:2181,G01-15:2181,G01-16:2181"
 
 model_path = '/home/hduser/Distracted_vgg16_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
+model = load_model(model_path)
+graph = tf.get_default_graph()
+print(model.summary())
+
 
 def my_decoder(s):
     return s
@@ -33,8 +38,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
-    model = load_model(model_path)
-    print(model.summary())
+
     records = message.collect()
     for record in records:
         try:
@@ -55,9 +59,13 @@ def handler(message):
         image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_CUBIC)
         image = image.reshape((-1, 224, 224, 3))
         print("img shape:", image.shape)
-        # image = preprocess_input(image)
-        ynew = model.predict_classes(image)
-        print(type(ynew), ynew)
+        image = preprocess_input(image)
+        print("img shape:", image.shape)
+        global graph
+        global model
+        with graph.as_default():
+            ynew = model.predict_classes(image)
+            print(type(ynew), ynew)
 
 
 kafkaStream.foreachRDD(handler)
