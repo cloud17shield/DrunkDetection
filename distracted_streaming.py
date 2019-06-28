@@ -21,7 +21,6 @@ brokers = "G01-01:2181,G01-02:2181,G01-03:2181,G01-04:2181,G01-05:2181,G01-06:21
           "G01-09:2181,G01-10:2181,G01-11:2181,G01-12:2181,G01-13:2181,G01-14:2181,G01-15:2181,G01-16:2181"
 
 model_path = '/home/hduser/Distracted_vgg16_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
-model = load_model(model_path)
 
 def my_decoder(s):
     return s
@@ -34,7 +33,8 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 
 def handler(message):
-    global model
+    model = load_model(model_path)
+    print(model.summary())
     records = message.collect()
     for record in records:
         try:
