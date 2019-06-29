@@ -71,7 +71,7 @@ def handler(message):
         # img = image.reshape(300, 400, 3)
         # img = cv2.imread("/tmp/" + key)
         img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-        frame = imutils.resize(img, width=450)
+        frame = imutils.resize(img, width=600)
         print('img shape', frame.shape)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         subjects = detect(gray, 0)
