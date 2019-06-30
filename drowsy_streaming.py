@@ -92,9 +92,9 @@ def handler(message):
                 flag += 1
                 print(flag)
                 if flag >= frame_check:
-                    cv2.putText(frame, "****************DROWSY!****************", (10, 30),
+                    cv2.putText(frame, "********************DROWSY!********************", (10, 30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                    cv2.putText(frame, "****************DROWSY!****************", (10, 325),
+                    cv2.putText(frame, "********************DROWSY!********************", (10, 400),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 # print ("Drowsy")
             else:
