@@ -89,8 +89,9 @@ def handler(message):
         # img = cv2.imread("/tmp/" + key)
         img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
         print('img shape', img, img.shape)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray, 1)
+        frame = imutils.resize(img, width=600)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray, 0)
         if len(faces) >= 1:
             predict_value = 0
 
@@ -100,7 +101,7 @@ def handler(message):
                 y_values = [[] for _ in range(48)]
                 (x, y, w, h) = rect_to_bb(face)
                 # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
-                faceAligned = fa.align(img, gray, face)
+                faceAligned = fa.align(frame, gray, face)
 
                 dets = detector(faceAligned, 1)
                 num_face = len(dets)
@@ -124,20 +125,20 @@ def handler(message):
             current = int(time.time() * 1000)
             if current - int(key) < 2000:
 
-                cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
+                cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 print("drunk prediction:", predict_value)
                 print("predict over")
-                producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
+                producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
                 producer.flush()
                 print('send over!')
 
         else:
             current = int(time.time() * 1000)
             if current - int(key) < 2000:
-                cv2.putText(img, "No face detected", (10, 30),
+                cv2.putText(frame, "No face detected", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
+                producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
                 producer.flush()
                 print('send over!')
 
