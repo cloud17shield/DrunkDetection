@@ -26,8 +26,6 @@ model = load_model(model_path)
 graph = tf.get_default_graph()
 print(model.summary())
 
-global graph
-global model
 with graph.as_default():
     def my_decoder(s):
         return s
