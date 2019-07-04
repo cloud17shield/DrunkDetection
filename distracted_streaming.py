@@ -26,40 +26,43 @@ model = load_model(model_path)
 graph = tf.get_default_graph()
 print(model.summary())
 
-with graph.as_default():
-    def my_decoder(s):
-        return s
+
+def my_decoder(s):
+    return s
 
 
-    kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 10},
-                                          valueDecoder=my_decoder)
-    producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
-                             buffer_memory=33554432, max_request_size=20485760)
+kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 10},
+                                      valueDecoder=my_decoder)
+producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
+                         buffer_memory=33554432, max_request_size=20485760)
 
 
-    def handler(message):
-        records = message.collect()
-        for record in records:
-            try:
-                print('record', len(record), type(record))
-                print('-----------')
-                print('tuple', type(record[0]), type(record[1]))
-            except Exception:
-                print("error")
-            # producer.send(output_topic, b'message received')
-            key = record[0]
-            value = record[1]
-            print("len", len(key), len(value))
+def handler(message):
+    records = message.collect()
+    for record in records:
+        try:
+            print('record', len(record), type(record))
+            print('-----------')
+            print('tuple', type(record[0]), type(record[1]))
+        except Exception:
+            print("error")
+        # producer.send(output_topic, b'message received')
+        key = record[0]
+        value = record[1]
+        print("len", len(key), len(value))
 
-            print("start processing")
-            image = np.asarray(bytearray(value), dtype="uint8")
-            image_in = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-            print("img shape:", image_in.shape)
-            image = cv2.resize(image_in, (224, 224), interpolation=cv2.INTER_CUBIC)
-            image = image.reshape((-1, 224, 224, 3))
-            print("img shape:", image.shape)
-            image = preprocess_input(image)
-            print("img shape:", image.shape)
+        print("start processing")
+        image = np.asarray(bytearray(value), dtype="uint8")
+        image_in = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+        print("img shape:", image_in.shape)
+        image = cv2.resize(image_in, (224, 224), interpolation=cv2.INTER_CUBIC)
+        image = image.reshape((-1, 224, 224, 3))
+        print("img shape:", image.shape)
+        image = preprocess_input(image)
+        print("img shape:", image.shape)
+        global graph
+        global model
+        with graph.as_default():
             ynew = model.predict_classes(image)
             print("prediction", type(ynew), ynew)
             result_dic = {0: "normal driving", 1: "texting - right", 2: "talking on the phone - right",
@@ -71,6 +74,7 @@ with graph.as_default():
             producer.flush()
             print('send over!')
 
-    kafkaStream.foreachRDD(handler)
-    ssc.start()
-    ssc.awaitTermination()
+
+kafkaStream.foreachRDD(handler)
+ssc.start()
+ssc.awaitTermination()

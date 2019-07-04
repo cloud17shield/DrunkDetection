@@ -15,6 +15,7 @@ import imutils
 import dlib
 import cv2
 import os
+import time
 import pandas as pd
 # import pydoop.hdfs as hdfs
 from sklearn.ensemble import RandomForestClassifier
@@ -120,18 +121,25 @@ def handler(message):
                     if True in clf2.predict(X_score):
                         predict_value = 1
                         break
-            cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            print("drunk prediction:", predict_value)
-            print("predict over")
+            current = int(time.time() * 1000)
+            if current - int(key) < 2000:
+
+                cv2.putText(img, "Drunk: " + str(predict_value), (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                print("drunk prediction:", predict_value)
+                print("predict over")
+                producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
+                producer.flush()
+                print('send over!')
 
         else:
-            cv2.putText(img, "No face detected", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-        producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
-        producer.flush()
-        print('send over!')
+            current = int(time.time() * 1000)
+            if current - int(key) < 2000:
+                cv2.putText(img, "No face detected", (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                producer.send(output_topic, value=cv2.imencode('.jpg', img)[1].tobytes(), key=key.encode('utf-8'))
+                producer.flush()
+                print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
