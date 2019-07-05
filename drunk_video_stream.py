@@ -91,7 +91,7 @@ def handler(message):
         print('img shape', img, img.shape)
         frame = imutils.resize(img, width=600)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray, 0)
+        faces = detector(gray, 1)
         if len(faces) >= 1:
             predict_value = 0
 
