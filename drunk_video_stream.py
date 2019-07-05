@@ -59,7 +59,7 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
-fa = FaceAligner(predictor, desiredFaceWidth=100)
+fa = FaceAligner(predictor, desiredFaceWidth=200)
 with open(model_path, 'rb') as f:
     clf2 = pickle.load(f)
 
@@ -100,7 +100,7 @@ def handler(message):
                 x_values = [[] for _ in range(48)]
                 y_values = [[] for _ in range(48)]
                 (x, y, w, h) = rect_to_bb(face)
-                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
+                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=200)
                 faceAligned = fa.align(frame, gray, face)
 
                 dets = detector(faceAligned, 1)
