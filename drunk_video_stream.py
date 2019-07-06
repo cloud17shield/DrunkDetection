@@ -26,7 +26,7 @@ from PIL import Image
 
 conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 1)
+ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -46,9 +46,9 @@ kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {inpu
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
 
-csv_file_path = "file:///home/hduser/DrunkDetection/train_data48.csv"
+csv_file_path = "file:///home/hduser/DrunkDetection/train_data48-100.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
-model_path = "/home/hduser/DrunkDetection/rf48.pickle"
+model_path = "/home/hduser/DrunkDetection/rf48-100.pickle"
 
 df = pd.read_csv(csv_file_path, index_col=0)
 print(df.columns)
@@ -59,7 +59,7 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
-fa = FaceAligner(predictor, desiredFaceWidth=200)
+fa = FaceAligner(predictor, desiredFaceWidth=100)
 with open(model_path, 'rb') as f:
     clf2 = pickle.load(f)
 
@@ -100,7 +100,7 @@ def handler(message):
                 x_values = [[] for _ in range(48)]
                 y_values = [[] for _ in range(48)]
                 (x, y, w, h) = rect_to_bb(face)
-                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=200)
+                # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
                 faceAligned = fa.align(frame, gray, face)
 
                 dets = detector(faceAligned, 1)
