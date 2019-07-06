@@ -89,9 +89,9 @@ def handler(message):
         # img = cv2.imread("/tmp/" + key)
         img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
         print('img shape', img, img.shape)
-        frame = imutils.resize(img, width=600)
+        frame = imutils.resize(img, width=450)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray, 1)
+        faces = detector(gray, 0)
         if len(faces) >= 1:
             predict_value = 0
 
@@ -103,7 +103,7 @@ def handler(message):
                 # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
                 faceAligned = fa.align(frame, gray, face)
 
-                dets = detector(faceAligned, 1)
+                dets = detector(faceAligned, 0)
                 num_face = len(dets)
                 print(num_face)
                 if num_face == 1:
