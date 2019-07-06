@@ -14,7 +14,7 @@ import tensorflow as tf
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.5)
+ssc = StreamingContext(sc, 1)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
