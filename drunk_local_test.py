@@ -30,7 +30,7 @@ with open(model_path, 'rb') as f:
 cap = cv2.VideoCapture(0)
 while True:
     ret, frame = cap.read()
-    frame = imutils.resize(frame, width=800)
+    frame = imutils.resize(frame, width=450)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray, 0)
     if len(faces) >= 1:

@@ -89,7 +89,7 @@ def handler(message):
         # img = cv2.imread("/tmp/" + key)
         img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
         print('img shape', img, img.shape)
-        frame = imutils.resize(img, width=450)
+        frame = imutils.resize(img, width=600)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = detector(gray, 0)
         if len(faces) >= 1:
