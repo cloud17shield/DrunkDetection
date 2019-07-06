@@ -13,7 +13,9 @@ import dlib
 import cv2
 
 conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
+conf.set("spark.scheduler.mode", "FAIR")
 sc = SparkContext(conf=conf)
+sc.setLocalProperty("spark.scheduler.pool", "pool1")
 ssc = StreamingContext(sc, 1)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
