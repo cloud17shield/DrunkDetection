@@ -43,7 +43,7 @@ def my_decoder(s):
 # numStreams = 5
 # kafkaStreams = [KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 10}, valueDecoder=my_decoder) for _ in range (numStreams)]
 # unifiedStream = ssc.union(*kafkaStreams)
-kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group-2', {input_topic: 5},
+kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group-2', {input_topic: 15},
                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
