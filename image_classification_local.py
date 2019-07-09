@@ -3,8 +3,8 @@ import cv2
 import imutils
 
 prediction = ImagePrediction()
-prediction.setModelTypeAsSqueezeNet()
-prediction.setModelPath("squeezenet_weights_tf_dim_ordering_tf_kernels.h5")
+prediction.setModelTypeAsInceptionV3()
+prediction.setModelPath("inception_v3_weights_tf_dim_ordering_tf_kernels.h5")
 prediction.loadModel(prediction_speed='fastest')
 cap = cv2.VideoCapture(0)
 while True:

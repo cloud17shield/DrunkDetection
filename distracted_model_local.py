@@ -1,11 +1,12 @@
 import numpy as np
 import cv2
 import imutils
-from keras.applications.vgg16 import preprocess_input
+from keras.applications.mobilenet import preprocess_input
 from keras.models import load_model
+from keras.applications.mobilenet import MobileNet
 import tensorflow as tf
 
-model_path = 'Distracted_vgg16_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
+model_path = '/Users/ranxin/Downloads/Distracted_mobilenet_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
 model = load_model(model_path)
 # graph = tf.get_default_graph()
 print(model.summary())
