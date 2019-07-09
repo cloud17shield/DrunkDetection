@@ -11,6 +11,7 @@ import cv2
 import imutils
 from keras.applications.mobilenet import preprocess_input
 import tensorflow as tf
+import time
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
@@ -68,11 +69,13 @@ def handler(message):
             result_dic = {0: "normal driving", 1: "texting - right", 2: "talking on the phone - right",
                           3: "texting - left", 4: "talking on the phone - left", 5: "operating on the radio",
                           6: "drinking", 7: "reaching behind", 8: "hair and makeup", 9: "talking to passenger"}
-            cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            producer.send(output_topic, value=cv2.imencode('.jpg', image_in)[1].tobytes(), key=key.encode('utf-8'))
-            producer.flush()
-            print('send over!')
+            current = int(time.time() * 1000)
+            if current - int(key) < 3000:
+                cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                producer.send(output_topic, value=cv2.imencode('.jpg', image_in)[1].tobytes(), key=key.encode('utf-8'))
+                producer.flush()
+                print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
