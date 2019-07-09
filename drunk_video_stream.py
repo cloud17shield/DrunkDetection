@@ -137,7 +137,7 @@ def handler(message):
 
         else:
             current = int(time.time() * 1000)
-            if current - int(key) < 2000:
+            if current - int(key) < 3000:
                 cv2.putText(frame, "No face detected", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))

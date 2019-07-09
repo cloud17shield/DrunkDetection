@@ -11,6 +11,7 @@ import numpy as np
 import imutils
 import dlib
 import cv2
+import time
 
 conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
 conf.set("spark.scheduler.mode", "FAIR")
@@ -101,9 +102,11 @@ def handler(message):
                 # print ("Drowsy")
             else:
                 flag = 0
-        producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
-        producer.flush()
-        print('send over!')
+        current = int(time.time() * 1000)
+        if current - int(key) < 3000:
+            producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+            producer.flush()
+            print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
