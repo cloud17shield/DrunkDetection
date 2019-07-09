@@ -70,7 +70,7 @@ def handler(message):
                           3: "texting - left", 4: "talking on the phone - left", 5: "operating on the radio",
                           6: "drinking", 7: "reaching behind", 8: "hair and makeup", 9: "talking to passenger"}
             current = int(time.time() * 1000)
-            if current - int(key) < 3000:
+            if current - int(key) < 5000:
                 cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 producer.send(output_topic, value=cv2.imencode('.jpg', image_in)[1].tobytes(), key=key.encode('utf-8'))
