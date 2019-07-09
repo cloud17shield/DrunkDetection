@@ -5,17 +5,15 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext
 from keras.models import load_model
-# import sparkdl as dl
 import numpy as np
 import cv2
-import imutils
 from keras.applications.mobilenet import preprocess_input
 import tensorflow as tf
 import time
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 1)
+ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output4'
@@ -70,7 +68,7 @@ def handler(message):
                           3: "texting - left", 4: "talking on the phone - left", 5: "operating on the radio",
                           6: "drinking", 7: "reaching behind", 8: "hair and makeup", 9: "talking to passenger"}
             current = int(time.time() * 1000)
-            if current - int(key) < 5000:
+            if current - int(key) < 4500:
                 cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 producer.send(output_topic, value=cv2.imencode('.jpg', image_in)[1].tobytes(), key=key.encode('utf-8'))
