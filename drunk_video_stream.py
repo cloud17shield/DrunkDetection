@@ -1,7 +1,4 @@
-import sys
-from kafka import KafkaProducer, KafkaConsumer, TopicPartition
-from kafka.errors import KafkaError, KafkaTimeoutError
-
+from kafka import KafkaProducer
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
@@ -14,10 +11,8 @@ import numpy as np
 import imutils
 import dlib
 import cv2
-import os
 import time
 import pandas as pd
-# import pydoop.hdfs as hdfs
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
