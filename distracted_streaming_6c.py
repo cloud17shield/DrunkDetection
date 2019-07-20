@@ -14,7 +14,7 @@ import time
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 2)
+ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output4'
@@ -68,7 +68,7 @@ def handler(message):
             result_dic = {0: "normal driving", 1: "texting", 2: "talking on the phone", 3: "operating on the radio",
                           4: "drinking", 5: "reaching behind"}
             current = int(time.time() * 1000)
-            if current - int(key) < 5000:
+            if current - int(key) < 4500:
                 image_in = imutils.resize(image_in, width=600)
                 cv2.putText(image_in, "status: " + result_dic[ynew[0]], (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
