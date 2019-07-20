@@ -69,8 +69,8 @@ def drunk_detect(ss):
     key = ss[0]
     value = ss[1]
 
-    producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
-                             buffer_memory=33554432, max_request_size=20485760)
+    # producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
+    #                          buffer_memory=33554432, max_request_size=20485760)
 
 
     image = np.asarray(bytearray(value), dtype="uint8")
