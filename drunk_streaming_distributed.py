@@ -112,12 +112,12 @@ def drunk_detect(ss):
                     break
             cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+            producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
             producer.flush()
     else:
         cv2.putText(frame, "No face detected", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-        producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+        producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
         producer.flush()
 
     return 23333
