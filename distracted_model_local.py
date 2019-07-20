@@ -1,12 +1,15 @@
+import os
+
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
 import numpy as np
 import cv2
 import imutils
 from keras.applications.mobilenet import preprocess_input
 from keras.models import load_model
 from keras.applications.mobilenet import MobileNet
-import tensorflow as tf
 
-model_path = '/Users/ranxin/Downloads/Distracted_mobilenet_full.h5'  # /home/hduser/Distracted_vgg16_full.h5
+model_path = '/Users/lilingxiao/Documents/HKU/Project/Distracted_mobilenet_full_6c.h5'  # /home/hduser/Distracted_vgg16_full.h5
 model = load_model(model_path)
 # graph = tf.get_default_graph()
 print(model.summary())
@@ -22,11 +25,11 @@ while True:
     # with graph.as_default():
     ynew = model.predict_classes(image)
     print("prediction", type(ynew), ynew)
-    result_dic = {0: "normal driving", 1: "texting - right", 2: "talking on the phone - right",
-                  3: "texting - left", 4: "talking on the phone - left", 5: "operating on the radio",
-                  6: "drinking", 7: "reaching behind", 8: "hair and makeup", 9: "talking to passenger"}
+    result_dic = {0: "normal driving", 1: "texting", 2: "talking on the phone",
+                  3: "operating on the radio",
+                  4: "drinking", 5: "reaching behind"}
     cv2.putText(frame, "status: " + result_dic[ynew[0]], (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
