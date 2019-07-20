@@ -79,10 +79,11 @@ def drunk_detect(ss):
     frame = imutils.resize(img, width=600)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = broadcast_detector.value(gray, 0)
+    predict_value = 0
 
     if len(faces) >= 1:
 
-        predict_value = 0
+
 
         for face in faces:
 
@@ -122,7 +123,7 @@ def drunk_detect(ss):
     #     producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
     #     producer.flush()
 
-    return 23333
+    return tuple([key, predict_value])
 
 
 def handler(message):
