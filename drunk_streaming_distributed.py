@@ -81,9 +81,11 @@ def drunk_detect(ss):
     faces = broadcast_detector.value(gray, 0)
 
     if len(faces) >= 1:
+
         predict_value = 0
 
         for face in faces:
+
             dic = {}
             x_values = [[] for _ in range(48)]
             y_values = [[] for _ in range(48)]
@@ -110,10 +112,10 @@ def drunk_detect(ss):
                 if True in broadcast_clf2.value.predict(X_score):
                     predict_value = 1
                     break
-            cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
-            producer.flush()
+        cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+        producer.flush()
     else:
         cv2.putText(frame, "No face detected", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
