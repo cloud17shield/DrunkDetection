@@ -91,12 +91,12 @@ def drunk_detect(ss):
             # faceOrig = imutils.resize(img[y: y + h, x: x + w], width=100)
             faceAligned = broadcast_fa.value.align(frame, gray, face)
 
-            dets = detector(faceAligned, 0)
+            dets = broadcast_detector.value(faceAligned, 0)
             num_face = len(dets)
             print(num_face)
             if num_face == 1:
                 for k, d in enumerate(dets):
-                    shape = broadcast_detector.value(faceAligned, d)
+                    shape = broadcast_predictor.value(faceAligned, d)
                     for j in range(48):
                         x_values[j].append(shape.part(j).x)
                         y_values[j].append(shape.part(j).y)
