@@ -40,8 +40,6 @@ def my_decoder(s):
 # unifiedStream = ssc.union(*kafkaStreams)
 kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group-2', {input_topic: 15},
                                       valueDecoder=my_decoder)
-producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
-                         buffer_memory=33554432, max_request_size=20485760)
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48-100.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
@@ -70,6 +68,10 @@ broadcast_scaler = sc.broadcast(scaler)
 def drunk_detect(ss):
     key = ss[0]
     value = ss[1]
+
+    producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
+                             buffer_memory=33554432, max_request_size=20485760)
+
 
     image = np.asarray(bytearray(value), dtype="uint8")
     img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
@@ -108,7 +110,17 @@ def drunk_detect(ss):
                 if True in broadcast_clf2.value.predict(X_score):
                     predict_value = 1
                     break
-        return 23333
+            cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+            producer.flush()
+    else:
+        cv2.putText(frame, "No face detected", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+        producer.flush()
+
+    return 23333
 
 
 def handler(message):
