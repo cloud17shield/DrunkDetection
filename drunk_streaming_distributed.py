@@ -108,13 +108,13 @@ def drunk_detect(ss):
                 if True in broadcast_clf2.value.predict(X_score):
                     predict_value = 1
                     break
-        return key, predict_value
+        return 23333
 
 
 def handler(message):
     newrdd = message.map(drunk_detect)
     for i in newrdd.collect():
-        print(i)
+        print("text23333?", i)
 
 
 kafkaStream.foreachRDD(handler)
