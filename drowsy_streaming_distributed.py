@@ -94,7 +94,7 @@ def drowsy_detect(ss):
         if ear < broadcast_thresh.value:
             accum.add(1)
         else:
-            accum.setValue(0)
+            accum.accum_param.zero(0)
         return tuple([key, frame])
 
 
