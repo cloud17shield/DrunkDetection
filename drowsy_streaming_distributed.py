@@ -93,11 +93,6 @@ def drowsy_detect(ss):
         cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
         if ear < broadcast_thresh.value:
             accum.add(1)
-            if accum.value >= broadcast_frame_check.value:
-                cv2.putText(frame, "********************DROWSY!********************", (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                cv2.putText(frame, "********************DROWSY!********************", (10, 400),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         else:
             accum.setValue(0)
         return tuple([key, frame])
@@ -109,6 +104,11 @@ def handler(message):
         key = i[0]
         frame = i[1]
         current = int(time.time() * 1000)
+        if accum.value >= broadcast_frame_check.value:
+            cv2.putText(frame, "********************DROWSY!********************", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.putText(frame, "********************DROWSY!********************", (10, 400),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         if current - int(key) < 3000:
             producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
             producer.flush()
