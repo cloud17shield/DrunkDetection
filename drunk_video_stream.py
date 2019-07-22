@@ -21,6 +21,7 @@ from PIL import Image
 
 conf = SparkConf().setAppName("drunk video stream").setMaster("yarn")
 conf.set("spark.scheduler.mode", "FAIR")
+conf.set("spark.scheduler.allocation.file", "/opt/spark-2.4.3-bin-hadoop2.7/conf/fairscheduler.xml")
 sc = SparkContext(conf=conf)
 sc.setLocalProperty("spark.scheduler.pool", "pool2")
 ssc = StreamingContext(sc, 0.5)

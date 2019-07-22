@@ -13,7 +13,10 @@ import tensorflow as tf
 import time
 
 conf = SparkConf().setAppName("distract streaming").setMaster("yarn")
+conf.set("spark.scheduler.mode", "FAIR")
+conf.set("spark.scheduler.allocation.file", "/opt/spark-2.4.3-bin-hadoop2.7/conf/fairscheduler.xml")
 sc = SparkContext(conf=conf)
+sc.setLocalProperty("spark.scheduler.pool", "pool4")
 ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
