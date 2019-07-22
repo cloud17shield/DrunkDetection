@@ -114,23 +114,24 @@ def drunk_detect(ss):
                 if True in broadcast_clf2.value.predict(X_score):
                     predict_value = 1
                     break
-    #     cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        cv2.putText(frame, "Drunk: " + str(predict_value), (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     #     producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
     #     producer.flush()
-    # else:
-    #     cv2.putText(frame, "No face detected", (10, 30),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+    else:
+        cv2.putText(frame, "No face detected", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     #     producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
     #     producer.flush()
 
-    return tuple([key, predict_value])
+    return tuple([key, frame])
 
 
 def handler(message):
     newrdd = message.map(drunk_detect)
     for i in newrdd.collect():
         print("text23333?", i)
+        print("return type:", type(i))
 
 
 kafkaStream.foreachRDD(handler)
