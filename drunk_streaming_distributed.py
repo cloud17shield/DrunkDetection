@@ -41,6 +41,8 @@ def my_decoder(s):
 # unifiedStream = ssc.union(*kafkaStreams)
 kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group-2', {input_topic: 15},
                                       valueDecoder=my_decoder)
+producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
+                         buffer_memory=33554432, max_request_size=20485760)
 
 csv_file_path = "file:///home/hduser/DrunkDetection/train_data48-100.csv"
 predictor_path = "/home/hduser/DrunkDetection/shape_predictor_68_face_landmarks.dat"
@@ -130,8 +132,12 @@ def drunk_detect(ss):
 def handler(message):
     newrdd = message.map(drunk_detect)
     for i in newrdd.collect():
-        print("text23333?", i)
-        print("return type:", type(i))
+        # print("text23333?", i)
+        # print("return type:", type(i))
+        key = i[0]
+        frame = i[1]
+        producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+        producer.flush()
 
 
 kafkaStream.foreachRDD(handler)
