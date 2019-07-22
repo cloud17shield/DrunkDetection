@@ -136,8 +136,10 @@ def handler(message):
         # print("return type:", type(i))
         key = i[0]
         frame = i[1]
-        producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
-        producer.flush()
+        current = int(time.time() * 1000)
+        if current - int(key) < 3000:
+            producer.send("output2", value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
+            producer.flush()
 
 
 kafkaStream.foreachRDD(handler)
