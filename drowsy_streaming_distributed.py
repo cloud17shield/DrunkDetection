@@ -70,6 +70,7 @@ def drowsy_detect(ss):
 
     key = ss[0]
     value = ss[1]
+    ear = 1
 
     (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_68_IDXS["left_eye"]
     (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_68_IDXS["right_eye"]
