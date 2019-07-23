@@ -95,7 +95,7 @@ def drowsy_detect(ss):
         #     accum.add(1)
         # else:
         #     accum.accum_param.zero(0)
-        return tuple([key, frame, ear])
+    return tuple([key, frame, ear])
 
 
 def handler(message):
