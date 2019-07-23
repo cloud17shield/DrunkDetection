@@ -50,13 +50,13 @@ predict = dlib.shape_predictor(predictor_path)  # Dat file is the crux of the co
 # (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_68_IDXS["left_eye"]
 # (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_68_IDXS["right_eye"]
 
-# flag = 0
+flag = 0
 
-broadcast_thresh = sc.broadcast(thresh)
-broadcast_frame_check = sc.broadcast(frame_check)
+# broadcast_thresh = sc.broadcast(thresh)
+# broadcast_frame_check = sc.broadcast(frame_check)
 broadcast_detect = sc.broadcast(detect)
 broadcast_predict = sc.broadcast(predict)
-accum = sc.accumulator(0)
+# accum = sc.accumulator(0)
 
 
 def drowsy_detect(ss):
@@ -99,20 +99,22 @@ def drowsy_detect(ss):
 
 
 def handler(message):
+    global flag
     newrdd = message.map(drowsy_detect)
     for i in newrdd.collect():
         key = i[0]
         frame = i[1]
         ear = i[2]
-        if ear < broadcast_thresh.value:
-            accum.add(1)
-            if accum.value >= broadcast_frame_check.value:
+        print("return", key, frame, ear)
+        if ear < thresh:
+            flag += 1
+            if flag >= frame_check:
                 cv2.putText(frame, "********************DROWSY!********************", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 cv2.putText(frame, "********************DROWSY!********************", (10, 400),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         else:
-            accum.add(-accum.value)
+            flag = 0
         current = int(time.time() * 1000)
         if current - int(key) < 3000:
             producer.send(output_topic, value=cv2.imencode('.jpg', frame)[1].tobytes(), key=key.encode('utf-8'))
